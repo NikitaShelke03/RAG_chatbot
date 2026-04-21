@@ -1,0 +1,137 @@
+ARTIFICIAL INTELLIGENCE
+
+Artificial Intelligence (AI) is a field of computer science focused on building systems that can perform tasks that typically require human intelligence such as reasoning, learning, problem-solving, and decision-making.
+
+AI can be classified into three types: Narrow AI, General AI, and Super AI. Narrow AI is designed for specific tasks like voice assistants. General AI refers to systems that can perform any intellectual task like humans, while Super AI is a theoretical form of AI that surpasses human intelligence.
+
+---
+
+MACHINE LEARNING
+
+Machine Learning (ML) is a subset of Artificial Intelligence that enables machines to learn from data without being explicitly programmed.
+
+There are three main types of ML:
+1. Supervised Learning - uses labeled data (e.g., spam detection).
+2. Unsupervised Learning - finds patterns in unlabeled data (e.g., clustering customers).
+3. Reinforcement Learning - learns through rewards and penalties (e.g., game playing AI).
+
+Popular algorithms include Linear Regression, Decision Trees, Random Forest, and Support Vector Machines.
+
+---
+
+DEEP LEARNING
+
+Deep Learning is a subset of Machine Learning that uses neural networks with multiple layers to model complex patterns in data.
+
+It is widely used in image recognition, speech recognition, and natural language processing.
+
+Common architectures include:
+- Convolutional Neural Networks (CNNs) for image processing
+- Recurrent Neural Networks (RNNs) for sequence data
+- Transformers for NLP tasks like ChatGPT
+
+---
+
+NATURAL LANGUAGE PROCESSING
+
+Natural Language Processing (NLP) enables machines to understand and process human language.
+
+Applications include:
+- Machine Translation (Google Translate)
+- Chatbots (ChatGPT)
+- Sentiment Analysis (analyzing reviews)
+- Speech Recognition (voice assistants)
+
+Key NLP techniques include tokenization, stemming, lemmatization, and named entity recognition.
+
+---
+
+PYTHON PROGRAMMING
+
+Python is a high-level programming language widely used in AI, ML, web development, and data science.
+
+Key features of Python:
+- Simple and easy syntax
+- Large standard library
+- Strong community support
+
+Important libraries:
+- NumPy for numerical computing
+- Pandas for data analysis
+- Matplotlib for visualization
+- Scikit-learn for machine learning
+- TensorFlow and PyTorch for deep learning
+
+---
+
+DATA SCIENCE
+
+Data Science is the process of extracting insights from structured and unstructured data.
+
+It involves steps like:
+1. Data Collection
+2. Data Cleaning
+3. Data Analysis
+4. Data Visualization
+5. Model Building
+6. Deployment
+
+Tools used in Data Science include Python, R, SQL, Power BI, and Excel.
+
+---
+
+FAISS AND VECTOR DATABASES
+
+FAISS (Facebook AI Similarity Search) is a library used to perform efficient similarity search on large datasets of embeddings.
+
+Vector databases store numerical representations of text, images, or audio, allowing semantic search instead of keyword matching.
+
+This is a key component in Retrieval-Augmented Generation (RAG) systems.
+
+---
+
+CLOUD COMPUTING
+
+Cloud computing provides on-demand computing resources over the internet.
+
+Types of cloud services:
+- IaaS (Infrastructure as a Service)
+- PaaS (Platform as a Service)
+- SaaS (Software as a Service)
+
+Popular cloud platforms include AWS, Google Cloud Platform (GCP), and Microsoft Azure.
+
+---
+
+DATABASES
+
+Databases are used to store and manage data efficiently.
+
+Types:
+- SQL databases (MySQL, PostgreSQL)
+- NoSQL databases (MongoDB, Cassandra)
+
+SQL is used for structured data with tables, while NoSQL is used for unstructured or semi-structured data.
+
+---
+
+SOFTWARE DEVELOPMENT
+
+Software development is the process of designing, coding, testing, and maintaining applications.
+
+Common methodologies:
+- Agile
+- Waterfall
+- DevOps
+
+Version control tools like Git and GitHub are used for collaboration and tracking changes in code.
+
+---
+
+CYBERSECURITY
+
+Cybersecurity involves protecting systems, networks, and data from digital attacks.
+
+Common threats include malware, phishing, ransomware, and denial-of-service attacks.
+
+Best practices include using strong passwords, encryption, firewalls, and regular software updates.
