@@ -1,8 +1,7 @@
 # 📄 RAG-Based Document Q&A System
 
 ## 🚀 Overview
-This project is a Generative AI application that answers user queries based on documents using Retrieval-Augmented Generation (RAG).
-
+This project is a Generative AI application that enables users to ask questions based on uploaded documents. It uses a Retrieval-Augmented Generation (RAG) pipeline to fetch relevant context and generate accurate answers.
 ## 🧠 Features
 - Semantic search using embeddings
 - Context-aware answers using LLM
