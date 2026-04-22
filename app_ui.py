@@ -1,19 +1,21 @@
 import streamlit as st
-from langchain.document_loaders import TextLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from transformers import pipeline
 
-# Page setup
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import CharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
+
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+# =========================
+# PAGE SETUP
+# =========================
 st.set_page_config(page_title="RAG Chatbot", layout="wide")
-
-# Title
 st.title("🤖 RAG Chatbot")
 
-# -------------------------
-# LOAD DATA (same as your code)
-# -------------------------
+# =========================
+# LOAD VECTOR DB
+# =========================
 @st.cache_resource
 def load_db():
     loader = TextLoader("sample.txt")
@@ -22,38 +24,42 @@ def load_db():
     text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     docs = text_splitter.split_documents(documents)
 
-    embeddings = HuggingFaceEmbeddings()
-    db = FAISS.from_documents(docs, embeddings)
+    embeddings = HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
+    db = FAISS.from_documents(docs, embeddings)
     return db
 
 db = load_db()
 
-# -------------------------
-# LOAD MODEL (same as your code)
-# -------------------------
+# =========================
+# LOAD MODEL (FIXED)
+# =========================
 @st.cache_resource
 def load_model():
-    return pipeline("text2text-generation", model="google/flan-t5-base")
+    tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base")
+    return tokenizer, model
 
-qa_pipeline = load_model()
+tokenizer, model = load_model()
 
-# -------------------------
+# =========================
 # CHAT MEMORY
-# -------------------------
+# =========================
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# -------------------------
-# DISPLAY CHAT (ChatGPT style)
-# -------------------------
+# =========================
+# DISPLAY CHAT
+# =========================
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# -------------------------
+# =========================
 # USER INPUT
-# -------------------------
+# =========================
 query = st.chat_input("Ask your question...")
 
 if query:
@@ -61,14 +67,14 @@ if query:
     st.chat_message("user").markdown(query)
     st.session_state.messages.append({"role": "user", "content": query})
 
-    # -------------------------
-    # YOUR RAG LOGIC (unchanged)
-    # -------------------------
+    # =========================
+    # RAG LOGIC
+    # =========================
     retrieved_docs = db.similarity_search(query, k=3)
     context = " ".join([doc.page_content for doc in retrieved_docs])
 
     prompt = f"""
-    Answer the question based on the context below.
+    Answer the question based only on the context below.
 
     Context:
     {context}
@@ -76,20 +82,29 @@ if query:
     Question:
     {query}
 
-    Answer in short:
+    Answer clearly and concisely:
     """
 
-    result = qa_pipeline(
+    # Tokenize
+    inputs = tokenizer(
         prompt,
-        max_new_tokens=80,
+        return_tensors="pt",
+        truncation=True,
+        max_length=512
+    )
+
+    # Generate
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=100,
         do_sample=False
     )
 
-    answer = result[0]["generated_text"].replace(prompt, "").strip()
+    answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    # -------------------------
-    # SHOW BOT RESPONSE
-    # -------------------------
+    # =========================
+    # SHOW RESPONSE
+    # =========================
     with st.chat_message("assistant"):
         st.markdown(answer)
 

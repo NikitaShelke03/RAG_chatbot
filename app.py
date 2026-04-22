@@ -1,58 +1,118 @@
-from langchain.document_loaders import TextLoader
-from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
-from transformers import pipeline
+import streamlit as st
 
-# STEP 1: Load document
-loader = TextLoader("sample.txt")
-documents = loader.load()
+from langchain_community.document_loaders import TextLoader
+from langchain_text_splitters import CharacterTextSplitter
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 
-# STEP 2: Split text
-text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
-docs = text_splitter.split_documents(documents)
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-# STEP 3: Create embeddings
-embeddings = HuggingFaceEmbeddings()
+st.set_page_config(page_title="RAG Chatbot", layout="wide")
+st.title("📄 RAG Chatbot")
 
-# STEP 4: Store in vector DB
-db = FAISS.from_documents(docs, embeddings)
+# ================================
+# ✅ STEP 1: Load Document
+# ================================
+@st.cache_data
+def load_docs():
+    loader = TextLoader("sample.txt")
+    documents = loader.load()
+    return documents
 
-# STEP 5: Query system
-query = input("Enter your question: ")
+documents = load_docs()
 
-retrieved_docs = db.similarity_search(query)
+# ================================
+# ✅ STEP 2: Split Text
+# ================================
+@st.cache_data
+def split_docs(documents):
+    text_splitter = CharacterTextSplitter(chunk_size=500, chunk_overlap=50)
+    docs = text_splitter.split_documents(documents)
+    return docs
 
-# STEP 6: Use FLAN-T5 (FREE LLM)
-qa_pipeline = pipeline(
-    "text2text-generation",
-    model="google/flan-t5-base"
-)
+docs = split_docs(documents)
 
-# Create context
-context = " ".join([doc.page_content for doc in retrieved_docs])
+# ================================
+# ✅ STEP 3: Embeddings
+# ================================
+@st.cache_resource
+def load_embeddings():
+    return HuggingFaceEmbeddings(
+        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    )
 
-# Prompt (IMPORTANT FIX)
-prompt = f"""
-Answer the question based on the context below.
+embeddings = load_embeddings()
 
-Context:
-{context}
+# ================================
+# ✅ STEP 4: Vector Store
+# ================================
+@st.cache_resource
+def create_vectorstore(docs, embeddings):
+    return FAISS.from_documents(docs, embeddings)
 
-Question:
-{query}
+db = create_vectorstore(docs, embeddings)
 
-Answer in short:
-"""
+# ================================
+# ✅ STEP 5: Load FLAN-T5 Model
+# ================================
+@st.cache_resource
+def load_model():
+    tokenizer = AutoTokenizer.from_pretrained("google/flan-t5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/flan-t5-base")
+    return tokenizer, model
 
-# Generate answer
-result = qa_pipeline(
-    prompt,
-    max_new_tokens=80,
-    do_sample=False
-)
+tokenizer, model = load_model()
 
-# Clean output (IMPORTANT FIX - removes repetition)
-answer = result[0]["generated_text"].replace(prompt, "").strip()
+# ================================
+# ✅ STEP 6: User Input
+# ================================
+query = st.text_input("💬 Ask your question:")
 
-print("\nAnswer:", answer)
+if query:
+    # Retrieve relevant chunks
+    retrieved_docs = db.similarity_search(query, k=3)
+
+    # Combine context
+    context = " ".join([doc.page_content for doc in retrieved_docs])
+
+    # Prompt
+    prompt = f"""
+    Answer the question based only on the context below.
+
+    Context:
+    {context}
+
+    Question:
+    {query}
+
+    Answer in a clear and concise way:
+    """
+
+    # Tokenize
+    inputs = tokenizer(
+        prompt,
+        return_tensors="pt",
+        truncation=True,
+        max_length=512
+    )
+
+    # Generate answer
+    outputs = model.generate(
+        **inputs,
+        max_new_tokens=100,
+        do_sample=False
+    )
+
+    answer = tokenizer.decode(outputs[0], skip_special_tokens=True)
+
+    # ================================
+    # ✅ Output
+    # ================================
+    st.write("### ✅ Answer:")
+    st.write(answer)
+
+    # Optional: Show retrieved chunks
+    with st.expander("📚 Retrieved Context"):
+        for i, doc in enumerate(retrieved_docs):
+            st.write(f"**Chunk {i+1}:**")
+            st.write(doc.page_content)
